@@ -524,6 +524,9 @@
 
                 // reverse format
                 v = this.o.parse(v);
+                if(this.o.mod && typeof this.o.mod == 'function'){
+                    v = this.o.mod(v / this.o.step);
+                }
 
                 if (
                     triggerRelease !== false && (v != this.v) && this.rH &&
