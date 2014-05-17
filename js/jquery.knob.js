@@ -76,6 +76,8 @@
         this.relativeWidth = false;
         this.relativeHeight = false;
         this.$div = null; // component div
+        this.spins = 0;
+        this.lastA = 0;
 
         this.run = function () {
             var cf = function (e, conf) {
@@ -97,7 +99,10 @@
                     // Config
                     min : this.$.data('min') !== undefined ? this.$.data('min') : 0,
                     max : this.$.data('max') !== undefined ? this.$.data('max') : 100,
-                    stopper : true,
+                    stopper : this.$.data('stopper') !== undefined ? this.$.data('stopper') : true,
+                    infinite : this.$.data('infinite') !== undefined ? this.$.data('infinite') : false,
+                    spinMin : this.$.data('spinMin') !== undefined ? this.$.data('spinMin') : 0,
+                    spinMax : this.$.data('spinMax') !== undefined ? this.$.data('spinMax') : 999999999,
                     readOnly : this.$.data('readonly') || (this.$.attr('readonly') === 'readonly'),
 
                     // UI
@@ -140,6 +145,10 @@
             this.o.flip = this.o.rotation === 'anticlockwise' || this.o.rotation === 'acw';
             if(!this.o.inputColor) {
                 this.o.inputColor = this.o.fgColor;
+            }
+            if(this.o.infinite){
+                //when dial is in infinite mode, values shouldn't be bound by stopper
+                this.o.stopper = false;
             }
 
             // routing value
@@ -561,8 +570,28 @@
                 a += this.PI2;
             }
 
+            //keep spinning, when infinite
+            //keep track of the full 360 spins
+            var up = a > this.lastA;
+            var breakPoint = Math.abs(a - this.lastA) > 3.5;
+            //console.log(a, this.lastA, up, this.angleArc, this.angleOffset);
+            if(breakPoint){
+                this.spins += up ? -1 : 1;
+                if(this.spins < this.o.spinMin){
+                    this.spins = this.o.spinMin;
+                    a -= this.PI2;
+                }
+                if(this.spins > this.o.spinMax){
+                    this.spins = this.o.spinMax;
+                    a += this.PI2;
+                }
+            }
             ret = ~~ (0.5 + (a * (this.o.max - this.o.min) / this.angleArc))
                     + this.o.min;
+
+            ret += (this.spins * this.o.max);
+
+            this.lastA = a;
 
             this.o.stopper && (ret = max(min(ret, this.o.max), this.o.min));
 
