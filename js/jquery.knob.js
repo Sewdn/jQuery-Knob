@@ -570,28 +570,31 @@
                 a += this.PI2;
             }
 
-            //keep spinning, when infinite
-            //keep track of the full 360 spins
-            var up = a > this.lastA;
-            var breakPoint = Math.abs(a - this.lastA) > 3.5;
-            //console.log(a, this.lastA, up, this.angleArc, this.angleOffset);
-            if(breakPoint){
-                this.spins += up ? -1 : 1;
+            if(this.o.infinite){
+                //keep spinning, when infinite
+                //keep track of the full 360 spins
+                var up = a > this.lastA;
+                var breakPoint = Math.abs(a - this.lastA) > 3.5;
+                //console.log(a, this.lastA, up, this.angleArc, this.angleOffset);
+                if(breakPoint){
+                    this.spins += up ? -1 : 1;
+                }
+                ret = ~~ (0.5 + (a * (this.o.max - this.o.min) / this.angleArc))
+                        + this.o.min;
+
+                ret += (this.spins * this.o.max);
+
                 if(this.spins < this.o.spinMin){
-                    this.spins = this.o.spinMin;
-                    a -= this.PI2;
+                    this.spins = this.o.spinMin-1;
+                    ret = (this.o.spinMin * this.o.max) + this.o.step;
                 }
                 if(this.spins > this.o.spinMax){
-                    this.spins = this.o.spinMax;
-                    a += this.PI2;
+                    this.spins = this.o.spinMax+1;
+                    ret = this.o.spinMax * this.o.max - this.o.step;
                 }
+
+                this.lastA = a;
             }
-            ret = ~~ (0.5 + (a * (this.o.max - this.o.min) / this.angleArc))
-                    + this.o.min;
-
-            ret += (this.spins * this.o.max);
-
-            this.lastA = a;
 
             this.o.stopper && (ret = max(min(ret, this.o.max), this.o.min));
 
