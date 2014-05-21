@@ -570,6 +570,8 @@
                 a += this.PI2;
             }
 
+            ret = ~~ (0.5 + (a * (this.o.max - this.o.min) / this.angleArc)) + this.o.min;
+
             if(this.o.infinite){
                 //keep spinning, when infinite
                 //keep track of the full 360 spins
@@ -579,8 +581,6 @@
                 if(breakPoint){
                     this.spins += up ? -1 : 1;
                 }
-                ret = ~~ (0.5 + (a * (this.o.max - this.o.min) / this.angleArc))
-                        + this.o.min;
 
                 ret += (this.spins * this.o.max);
 
